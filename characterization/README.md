@@ -45,6 +45,7 @@ characterization/
 ```
 
 - 테스트 파일: `tests/<모듈명>.test.js`. 한 모듈에 파일 하나.
+  - 예외: `tests/item-bank-warnings.test.js` — 검색 경고 · 정렬 표시 · 페이저를 비교한다. 정규화 모양 `{status, rows, count, message}` 에 없는 부분이라 기존 `item-bank` 스냅샷을 다시 찍지 않으려고 파일을 나눴다.
 - 스냅샷: `__snapshots__/<테스트 파일명>.snap`. **커밋한다.** 이 파일이 "기준"이다.
 - 예시 파일 `tests/example-units.test.js` 는 단원 목록(`units.php`)을 대상으로 한다. 참가자가 만들 `tests/item-bank.test.js`(문항 검색 등)와 겹치지 않는다.
 
