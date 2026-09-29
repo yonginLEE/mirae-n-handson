@@ -1,5 +1,6 @@
 package com.example.item;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -26,6 +27,9 @@ class ItemControllerTest {
 
     @MockBean
     private ItemService itemService;
+
+    @MockBean
+    private ItemSearchService itemSearchService;
 
     @Test
     @DisplayName("GET /api/items/{id} → 200, 문항 JSON")
@@ -74,5 +78,45 @@ class ItemControllerTest {
             .andExpect(jsonPath("$.length()").value(2))
             .andExpect(jsonPath("$[0].id").value(2))
             .andExpect(jsonPath("$[1].tags[0]").value("계산"));
+    }
+
+    @Test
+    @DisplayName("GET /api/items/search → 200, {status, rows, count, message}")
+    void searchReturnsNormalizedShape() throws Exception {
+        when(itemSearchService.search(any())).thenReturn(ItemSearchResponse.of(condition(), 1,
+            List.of(new ItemSearchRow(12, "대분수의 덧셈", "M5-1", 3, List.of("계산", "오답률높음")))));
+
+        mockMvc.perform(get("/api/items/search").param("unit", "M5-1").param("level", "3").param("tag", "계산"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.status").value(200))
+            .andExpect(jsonPath("$.count").value(1))
+            .andExpect(jsonPath("$.message").isEmpty())
+            .andExpect(jsonPath("$.rows[0].id").value(12))
+            .andExpect(jsonPath("$.rows[0].unit").value("M5-1"))
+            .andExpect(jsonPath("$.rows[0].tags[1]").value("오답률높음"))
+            .andExpect(jsonPath("$.rows[0].stem").doesNotExist())
+            .andExpect(jsonPath("$.rows[0].status").doesNotExist())
+            .andExpect(jsonPath("$.page").value(1))
+            .andExpect(jsonPath("$.pageSize").value(20))
+            .andExpect(jsonPath("$.totalPages").value(1))
+            .andExpect(jsonPath("$.sort").isEmpty())
+            .andExpect(jsonPath("$.dir").isEmpty())
+            .andExpect(jsonPath("$.warnings").isArray())
+            .andExpect(jsonPath("$.warnings").isEmpty());
+    }
+
+    private static ItemSearchCondition condition() {
+        return ItemSearchCondition.from(java.util.Map.of(), code -> true, name -> true);
+    }
+
+    @Test
+    @DisplayName("GET /api/items/search 이상한 난이도 · 페이지 → 400 이 아니라 200")
+    void searchWithOddValuesIsNotBadRequest() throws Exception {
+        when(itemSearchService.search(any())).thenReturn(ItemSearchResponse.of(condition(), 0, List.of()));
+
+        mockMvc.perform(get("/api/items/search").param("level", "5abc").param("page", "abc"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.count").value(0))
+            .andExpect(jsonPath("$.message").value("검색 결과가 없습니다"));
     }
 }
