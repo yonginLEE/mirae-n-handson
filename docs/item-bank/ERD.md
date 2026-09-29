@@ -27,6 +27,7 @@ ARCHITECTURE.md 6장 2번에서 "스키마 파일이 모듈 안에 없다"고 �
 참고:
 - `id` 컬럼은 모두 `AUTO_INCREMENT` 가 없다. 그래서 `item.id` 를 애플리케이션이 직접 만든다 (`register.php:87`).
 - `item` 의 `level` 1~5 범위와 `status` 코드 뜻은 스키마 주석에만 있다 (`01-schema.sql:25-26`). CHECK 제약은 없다.
+- 네 테이블 모두 `utf8mb4_unicode_ci` 로 선언돼 있다 (`01-schema.sql:18`, `:33`, `:40`, `:48`). 그래서 `unit.code` · `tag.name` 으로 거르는 검색 조건(`search.php:118`, `:245`)은 대소문자를 구분하지 않는다 (BUSINESS-RULES.md BR-08, BR-14).
 
 ## 2. 테이블 관계
 
