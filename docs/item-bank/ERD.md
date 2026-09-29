@@ -96,7 +96,7 @@ erDiagram
 | 읽기 | `units.php` · (전역) | `SELECT COUNT(*) FROM item i WHERE i.unit_id = u.id AND i.status = 'A'` — 단원별 공개 문항 수 | `units.php:17` |
 | 읽기 (잠금) | `register.php` · (전역, POST) | `SELECT COALESCE(MAX(id), 0) + 1 FROM item FOR UPDATE` — 새 ID 계산 | `register.php:87` |
 | 쓰기 INSERT | `register.php` · (전역, POST) | `INSERT INTO item (id, unit_id, title, stem, level, status, created_at, updated_at) VALUES (?, ?, ?, ?, ?, 'R', NOW(), NOW())` — 트랜잭션 안 | `register.php:85`, `:92-101`, `:114` |
-| 읽기 (뷰 경유) | `search.php` · `runSearchQuery` | `SELECT COUNT(*) FROM v_item_public WHERE …` → `SELECT id, title, unit_code, level, tag_names, created_at FROM v_item_public WHERE … ORDER BY … LIMIT 20` — 조건 컬럼 `title`, `stem`, `level`, `created_at` | 조립 `search.php:521-526` (`buildSearchQuery`), 실행 `:577`, `:600` |
+| 읽기 (뷰 경유) | `search.php` · `runSearchQuery` | `SELECT COUNT(*) FROM v_item_public WHERE …` → `SELECT id, title, unit_code, level, tag_names, created_at FROM v_item_public WHERE … ORDER BY … LIMIT 20` — WHERE 컬럼 `title` · `stem` (LIKE, `:98`), `level` (`:215`, `:218`, `:226`). `created_at` 은 WHERE 가 아니라 정렬에만 쓴다 (`:311`, `:313`) | 조립 `search.php:521-526` (`buildSearchQuery`), 실행 `:577`, `:600` |
 | 쓰기 UPDATE · DELETE | 없음 | `status` 를 `R → A` 또는 `→ D` 로 바꾸는 코드가 모듈에 없다 (6장 1번) | — |
 
 ### 3.3 `tag`
@@ -163,7 +163,7 @@ flowchart LR
 
 | # | 항목 | 이유 · 관련 위치 |
 |---|---|---|
-| 1 | `item.status` 를 `R → A`(검수 완료) 또는 `→ D`(삭제)로 바꾸는 주체 | 모듈 안에 `UPDATE` 가 없다. 다른 모듈이나 수작업 SQL 인지 확인하지 못했다. `register.php:84`, `:116` 은 "검수 완료 후 검색에 노출"이라고만 적는다 |
+| 1 | `item.status` 를 `R → A`(검수 완료) 또는 `→ D`(삭제)로 바꾸는 주체 | 모듈 안에 `UPDATE` 가 없다. 저장소 전체(`*.php` · `*.java` · `*.ts` · `*.sql`)에서도 `UPDATE item` 을 찾지 못했다. 저장소 밖 도구나 수작업 SQL 인지 확인하지 못했다. `register.php:84`, `:116` 은 "검수 완료 후 검색에 노출"이라고만 적는다 |
 | 2 | `unit` · `tag` 를 관리(추가 · 수정 · 삭제)하는 화면이나 절차 | 모듈 안에 쓰기가 없고 시드에만 있다 (`02-seed.sql:9`, `:19`) |
 | 3 | 동시 등록 때 `item.id` 가 겹치지 않는지 | 4장 4번. 실행해 보지 않았다 |
 | 4 | 운영 DB 스키마가 `01-schema.sql` 과 같은지 | 이 파일은 compose 로컬 환경용이다 (`docker-compose.yml:25`). 운영 DB 는 볼 수 없었다 |
