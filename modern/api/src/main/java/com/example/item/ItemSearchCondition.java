@@ -3,6 +3,7 @@ package com.example.item;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
 
@@ -43,6 +44,20 @@ public record ItemSearchCondition(
     private static final Pattern UNIT_CODE_PATTERN = LegacyPhp.pattern("^[A-Za-z][0-9]{1,2}-[0-9]{1,2}$");
     private static final Pattern LEVEL_PATTERN = LegacyPhp.pattern("^[1-5]$");
     private static final List<String> SORT_KEYS = List.of("id", "title", "unit", "level", "created");
+
+    /** {@link #orderBy(String, String)} 가 돌려줄 수 있는 절 전부. 리포지토리가 SQL 에 이어 붙이므로 이 밖의 값은 받지 않는다. */
+    private static final Set<String> ALLOWED_ORDER_BY = Set.of(
+        "id ASC", "id DESC",
+        "title ASC, id ASC", "title DESC, id ASC",
+        "unit_code ASC, level DESC, id ASC", "unit_code DESC, level DESC, id ASC",
+        "level ASC, id ASC", "level DESC, id ASC",
+        "created_at ASC, id ASC", "created_at DESC, id ASC");
+
+    public ItemSearchCondition {
+        if (!ALLOWED_ORDER_BY.contains(orderBy)) {
+            throw new IllegalArgumentException("허용되지 않는 정렬 절: " + orderBy);
+        }
+    }
 
     /** OFFSET 값. */
     public int offset() {
