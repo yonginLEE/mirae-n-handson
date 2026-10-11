@@ -42,7 +42,7 @@ public class DistributionService {
     }
 
     /**
-     * 재배포. 마감된 과제는 재배포할 수 없다(409).
+     * 재배포. 마감된 과제는 재배포할 수 없다(409). 
      *
      * @param id     배포 id
      * @param reason 사유(없어도 됨) — 로그에만 남긴다
