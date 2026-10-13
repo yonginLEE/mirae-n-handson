@@ -18,9 +18,10 @@ jobs:
 
       - uses: anthropics/claude-code-action@v1
         with:
-          claude_code_oauth_token: ${{ rVjrGdkF3WPfcKd6ItKGhIJv7MRSmtYE87VNjlmv1WmVhge0#CDc-WGjG876RuCawJYDKjEINzi5RM6f8kXEMIimMKXk }}
+          claude_code_oauth_token: ${{ secrets.rVjrGdkF3WPfcKd6ItKGhIJv7MRSmtYE87VNjlmv1WmVhge0#CDc-WGjG876RuCawJYDKjEINzi5RM6f8kXEMIimMKXk }}
           # API 키로 인증하는 경우 위 줄 대신 아래 줄을 사용:
-          # anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          anthropic_api_key: ${{ secrets.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
+ }}
           prompt: |
             REPO: ${{ github.repository }}
             PR NUMBER: ${{ github.event.pull_request.number }}
