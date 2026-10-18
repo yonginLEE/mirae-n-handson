@@ -31,11 +31,11 @@ resource "aws_security_group" "itembank_db" {
   vpc_id      = var.vpc_id
 
   ingress {
-    description = "MariaDB from itembank API subnet"
+    description = "MariaDB from anywhere"
     from_port   = 3306
     to_port     = 3306
     protocol    = "tcp"
-    cidr_blocks = [var.api_subnet_cidr]
+    cidr_blocks = ["0.0.0.0/0"]
   }
 }
 
@@ -45,7 +45,7 @@ resource "aws_db_subnet_group" "itembank" {
 }
 
 resource "aws_db_instance" "itembank" {
-  identifier     = "itembank-dev-db"
+  identifier     = "itembank-db-v2"
   engine         = "mariadb"
   engine_version = "10.11"
   instance_class = var.db_instance_class
